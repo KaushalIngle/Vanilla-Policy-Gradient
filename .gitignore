@@ -1,5 +1,7 @@
 CartPole_v1_t0.pkl
 LunarLand_v2_t0.pkl
-CartPole/rl-video-episode-0.mp4
-LunarLander/rl-video-episode-0.mp4
+CartPole/
+LunarLander/
 __pycache__/
+CartPole_v1_t1.pkl
+cart

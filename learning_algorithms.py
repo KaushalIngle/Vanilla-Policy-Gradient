@@ -45,6 +45,12 @@ class PGTrainer:
 
     def estimate_loss_function(self, trajectory):
         loss = list()
+        if self.params['reward_to_go']:
+            print("Using reward-to-go: eq7")
+        elif self.params['reward_discount']:
+            print("Using reward-discounting: eq8")
+        else:
+            print("Using basic rewards: eq6")
         # print(trajectory)
         for t_idx in range(self.params['n_trajectory_per_rollout']):
             # TODO: Compute loss function
@@ -52,13 +58,25 @@ class PGTrainer:
             # HINT 2: Get trajectory action log-prob
             # HINT 3: Calculate Loss function and append to the list
             # print(trajectory['log_prob'][t_idx])
-            log_prob = torch.sum(trajectory['log_prob'][t_idx])
-            trajectory_reward = 0
-            for r_idx in range(len((trajectory['reward'])[t_idx])):
-                trajectory_reward += trajectory['reward'][t_idx][r_idx]
-            # for l_idx in range(len((trajectory['log_prob'])[t_idx])):
-            #     log_prob += trajectory['log_prob'][t_idx][l_idx]
-            loss.append(-log_prob * trajectory_reward)
+            if self.params['reward_to_go']:
+                # print(trajectory['log_prob'][t_idx])
+                rewards_to_go = apply_reward_to_go(trajectory['reward'][t_idx])
+                curr_loss = 0 
+                for r_idx in range(len(rewards_to_go)):
+                    curr_loss +=(-trajectory['log_prob'][t_idx][r_idx] * rewards_to_go[r_idx])
+                print(curr_loss)
+                loss.append(curr_loss/self.params['n_trajectory_per_rollout'])
+            elif self.params['reward_discount']:
+                break
+            else:
+                log_prob = torch.sum(trajectory['log_prob'][t_idx])
+                trajectory_reward = 0
+                for r_idx in range(len((trajectory['reward'])[t_idx])):
+                    trajectory_reward += trajectory['reward'][t_idx][r_idx]
+                # for l_idx in range(len((trajectory['log_prob'])[t_idx])):
+                #     log_prob += trajectory['log_prob'][t_idx][l_idx]
+                loss.append(-log_prob * trajectory_reward/self.params['n_trajectory_per_rollout'])
+        # print(loss)
         loss = torch.stack(loss).mean()
         return loss
 

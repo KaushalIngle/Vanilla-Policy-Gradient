@@ -16,14 +16,19 @@ def get_device():
 
 
 # Util function to apply reward-to-go scheme on a list of instant-reward (from eq 7)
-# def apply_reward_to_go(raw_reward):
-#     # TODO: Compute rtg_reward (as a list) from raw_reward
-#     # HINT: Reverse the input list, keep a running-average. Reverse again to get the correct order.
-#     rtg_reward = ???
-#     # Normalization
-#     rtg_reward = np.array(rtg_reward)
-#     rtg_reward = rtg_reward - np.mean(rtg_reward) / (np.std(rtg_reward) + np.finfo(np.float32).eps)
-#     return torch.tensor(rtg_reward, dtype=torch.float32, device=get_device())
+def apply_reward_to_go(raw_reward):
+    # TODO: Compute rtg_reward (as a list) from raw_reward
+    # HINT: Reverse the input list, keep a running-average. Reverse again to get the correct order.
+    raw_reward.reverse()
+    total_reward = 0
+    for i in range(len(raw_reward)):
+        total_reward += raw_reward[i]
+        raw_reward[i] = total_reward
+    raw_reward.reverse()
+    # Normalization
+    rtg_reward = np.array(raw_reward)
+    rtg_reward = rtg_reward - np.mean(rtg_reward) / (np.std(rtg_reward) + np.finfo(np.float32).eps)
+    return torch.tensor(rtg_reward, dtype=torch.float32, device=get_device())
 
 
 # # Util function to apply reward-discounting scheme on a list of instant-reward (from eq 8)
