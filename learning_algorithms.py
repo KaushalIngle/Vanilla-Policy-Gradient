@@ -45,12 +45,12 @@ class PGTrainer:
 
     def estimate_loss_function(self, trajectory):
         loss = list()
-        if self.params['reward_to_go']:
-            print("Using reward-to-go: eq7")
-        elif self.params['reward_discount']:
-            print("Using reward-discounting: eq8")
-        else:
-            print("Using basic rewards: eq6")
+        # if self.params['reward_to_go']:
+        #     print("Using reward-to-go: eq7")
+        # elif self.params['reward_discount']:
+        #     print("Using reward-discounting: eq8")
+        # else:
+        #     print("Using basic rewards: eq6")
         # print(trajectory)
         for t_idx in range(self.params['n_trajectory_per_rollout']):
             # TODO: Compute loss function
@@ -87,7 +87,7 @@ class PGTrainer:
         return loss
 
     def update_policy(self, loss):
-        print(loss)
+        # print(loss)
         loss.backward()
         self.optimizer.step()
         self.optimizer.zero_grad()
@@ -120,8 +120,12 @@ class PGPolicy(nn.Module):
         # TODO: Forward pass of policy net
         # HINT: (use Categorical from torch.distributions to draw samples and log-prob from model output)
         # print(obs)
+        # print(self.policy_net(obs))
         probabilities = Categorical(self.policy_net(obs))
+        # print(probabilities)
+# 
         action_index = probabilities.sample()
+        # print(action_index)
         log_prob = probabilities.log_prob(action_index)
         action_index =  action_index.data.numpy().astype('int32')
         return action_index, log_prob
