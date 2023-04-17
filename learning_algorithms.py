@@ -64,10 +64,16 @@ class PGTrainer:
                 curr_loss = 0 
                 for r_idx in range(len(rewards_to_go)):
                     curr_loss +=(-trajectory['log_prob'][t_idx][r_idx] * rewards_to_go[r_idx])
-                print(curr_loss)
+                # print(curr_loss)
                 loss.append(curr_loss/self.params['n_trajectory_per_rollout'])
             elif self.params['reward_discount']:
-                break
+                # print(trajectory['log_prob'][t_idx])
+                discounted_rewards = apply_discount(trajectory['reward'][t_idx])
+                curr_loss = 0 
+                for r_idx in range(len(discounted_rewards)):
+                    curr_loss +=(-trajectory['log_prob'][t_idx][r_idx] * discounted_rewards[r_idx])
+                # print(curr_loss)
+                loss.append(curr_loss/self.params['n_trajectory_per_rollout'])
             else:
                 log_prob = torch.sum(trajectory['log_prob'][t_idx])
                 trajectory_reward = 0
@@ -81,6 +87,7 @@ class PGTrainer:
         return loss
 
     def update_policy(self, loss):
+        print(loss)
         loss.backward()
         self.optimizer.step()
         self.optimizer.zero_grad()

@@ -31,15 +31,22 @@ def apply_reward_to_go(raw_reward):
     return torch.tensor(rtg_reward, dtype=torch.float32, device=get_device())
 
 
-# # Util function to apply reward-discounting scheme on a list of instant-reward (from eq 8)
-# def apply_discount(raw_reward, gamma=0.99):
-#     # TODO: Compute discounted_rtg_reward (as a list) from raw_reward
-#     # HINT: Reverse the input list, keep a running-average. Reverse again to get the correct order.
-#     discounted_rtg_reward = ???
-#     # Normalization
-#     discounted_rtg_reward = np.array(discounted_rtg_reward)
-#     discounted_rtg_reward = discounted_rtg_reward - np.mean(discounted_rtg_reward) / (np.std(discounted_rtg_reward) + np.finfo(np.float32).eps)
-#     return torch.tensor(discounted_rtg_reward, dtype=torch.float32, device=get_device())
+# Util function to apply reward-discounting scheme on a list of instant-reward (from eq 8)
+def apply_discount(raw_reward, gamma=0.99):
+    # TODO: Compute discounted_rtg_reward (as a list) from raw_reward
+    # HINT: Reverse the input list, keep a running-average. Reverse again to get the correct order.
+    raw_reward.reverse()
+    total_reward = 0
+    for i in range(len(raw_reward)):
+        total_reward = gamma * total_reward
+        total_reward += raw_reward[i]
+        raw_reward[i] = total_reward
+    raw_reward.reverse()
+    discounted_rtg_reward = raw_reward
+    # Normalization
+    discounted_rtg_reward = np.array(discounted_rtg_reward)
+    discounted_rtg_reward = discounted_rtg_reward - np.mean(discounted_rtg_reward) / (np.std(discounted_rtg_reward) + np.finfo(np.float32).eps)
+    return torch.tensor(discounted_rtg_reward, dtype=torch.float32, device=get_device())
 
 
 # Util function to apply reward-return (cumulative reward) on a list of instant-reward (from eq 6)
